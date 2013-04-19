@@ -62,55 +62,18 @@ abstract class Kohana_Mailings {
 			}
 		}
 
-		$curr_dir = pathinfo($css_file, PATHINFO_DIRNAME).DIRECTORY_SEPARATOR;
-
-		$html = iconv(mb_detect_encoding($html), 'UTF-8//TRANSLIT', $html);
+		$html = iconv(mb_detect_encoding($html), 'utf-8', $html);
 
 		$htmldoc = new InlineStyle($html);
 		$htmldoc->applyStylesheet(file_get_contents($css_file));
 
-		$html = self::_process_inline_images($htmldoc->getHTML(), $curr_dir);
+		$html = $htmldoc->getHTML();
 
 		// Then remove unused cass parameters
 		$html = preg_replace('/ class=".*?"/', '', $html);
 		$html = preg_replace('/class=".*?"/', '', $html);
 
-		return $html;
-	}
-
-	protected static function _process_inline_images($contents, $curr_dir)
-	{
-		preg_match_all('/url\(\s*[\'"]?(\S*\.(?:jpe?g|gif|png))[\'"]?\s*\)/i', $contents, $matches);
-
-		foreach (array_keys($matches[0]) as $i)
-		{
-			$media_file = $curr_dir.DIRECTORY_SEPARATOR.$matches[1][$i];
-
-			$compressed = self::_file_to_data_uri($media_file);
-
-			if ($compressed)
-			{
-				$contents = str_replace($matches[1][$i], $compressed, $contents);
-			}
-		}
-
-		return $contents;
-	}
-
-	/**
-	 * Convert media file to base64 hash
-	 *
-	 * @param   type   $filename
-	 * @return  string
-	 */
-	protected static function _file_to_data_uri($filename)
-	{
-		$extension = pathinfo($filename, PATHINFO_EXTENSION);
-
-		$mime     = File::mime_by_ext($extension);
-		$contents = file_get_contents($filename);
-
-		return 'data:'.$mime.';base64,'.base64_encode($contents);
+		return html_entity_decode($html, ENT_COMPAT, 'UTF-8');
 	}
 
 } // End Kohana_Mailings
