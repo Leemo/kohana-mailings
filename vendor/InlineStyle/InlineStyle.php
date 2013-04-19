@@ -41,6 +41,8 @@ class InlineStyle
 	 */
 	protected $_cssquery;
 
+	protected $_appendix;
+
 	/**
 	 * Prepare all the necessary objects
 	 *
@@ -58,7 +60,8 @@ class InlineStyle
 			$this->_dom->loadHTMLFile($html);
 		}
 		else {
-			$this->_dom->loadHTML('<?xml encoding="'.$encoding.'">'.$html);
+			$this->_appendix = '<?xml encoding="'.$encoding.'">';
+			$this->_dom->loadHTML($this->_appendix.$html);
 		}
 		$this->_dom->encoding = $encoding;
 		$this->_cssquery = new CSSQuery($this->_dom);
@@ -124,7 +127,14 @@ class InlineStyle
 	 */
 	public function getHTML()
 	{
-		return $this->_dom->saveHTML();
+		$html = $this->_dom->saveHTML();
+
+		if ($this->_appendix !== NULL)
+		{
+			$html = str_replace($this->_appendix, '', $html);
+		}
+
+		return $html;
 	}
 
 	/**
