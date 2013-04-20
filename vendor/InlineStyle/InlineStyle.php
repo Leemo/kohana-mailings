@@ -55,14 +55,16 @@ class InlineStyle
 		}
 
 		$html = htmlspecialchars_decode(htmlentities((string) $html, ENT_NOQUOTES, $encoding), ENT_NOQUOTES);
+		libxml_use_internal_errors(FALSE);
 		$this->_dom = new DOMDocument();
 		if(file_exists($html)) {
 			$this->_dom->loadHTMLFile($html);
 		}
 		else {
 			$this->_appendix = '<?xml encoding="'.$encoding.'">';
-			$this->_dom->loadHTML($this->_appendix.$html);
+			@$this->_dom->loadHTML($this->_appendix.$html);
 		}
+		libxml_use_internal_errors(TRUE);
 		$this->_dom->encoding = $encoding;
 		$this->_cssquery = new CSSQuery($this->_dom);
 	}
