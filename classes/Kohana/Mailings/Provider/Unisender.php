@@ -331,7 +331,7 @@ class Kohana_Mailings_Provider_Unisender extends Mailings_Provider {
 	 *
 	 * @var string
 	 */
-	protected $_api_url_pattern = 'http://api.unisender.com/:lang/api/:uri';
+	protected $_api_url_pattern = 'https://api.unisender.com/:lang/api/:uri';
 
 	/**
 	 * Sends request to specified URL
@@ -357,6 +357,7 @@ class Kohana_Mailings_Provider_Unisender extends Mailings_Provider {
 
 		// Send request
 		$result = Request::factory($url)
+			->client($this->_client())
 			->method(Request::POST)
 			->query($data)
 			->execute()
@@ -374,6 +375,19 @@ class Kohana_Mailings_Provider_Unisender extends Mailings_Provider {
 
 		// Return result
 		return $json['result'];
+	}
+
+	/**
+	 * Initialize a CURL request client with disabled SSL verifycation
+	 *
+	 * @return Request_Client_Curl
+	 */
+	protected function _client()
+	{
+		return Request_Client_External::factory(array(), 'Request_Client_Curl')
+			->options(CURLOPT_SSL_VERIFYPEER, FALSE)
+			->options(CURLOPT_RETURNTRANSFER, TRUE)
+			->options(CURLOPT_TIMEOUT, 30);
 	}
 
 } // End Unisender
